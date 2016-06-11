@@ -11,7 +11,7 @@
   - name: Check ldap server  
     shell: ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts
     register : result1
-	  
+
   - name: Check access.conf
     shell: grep 'techops_dba' /etc/security/access.conf
     register: result2
@@ -19,28 +19,28 @@
   - name: Check sudoers
     shell: grep 'techops_dba' /etc/sudoers
     register: result3
- 	  
+      
   - name: Display Results of Ldap command
     debug: var=result1
-	  
+      
   - name: Display Results of access conf shell command
     debug: var=result2
-	  	  
+          
   - name: Display Results of sudoers conf shell command
     debug: var=result3
 
   - name: Installing ntp
-    shell: yum -y install ntp	  
-	  
+    shell: yum -y install ntp     
+      
   - name: starting ntp
     shell: systemctl start ntpd
 
   - name: getting ntp results
     shell: ntpq -p
     register:ntpresult
-	
+    
   - name: Display Results of ntp command
-    debug: var=ntpresult	  
-	  
+    debug: var=ntpresult      
+      
   - name: Jump box check
     local_action: shell ssh -i "myserver.pem" ec2-user@ec2-54-149-160-177.us-west-2.compute.amazonaws.com 

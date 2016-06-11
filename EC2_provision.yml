@@ -9,10 +9,10 @@
   tasks:
   - name: Basic provisioning of two t2.micro EC2 instances
     ec2:
-	  aws_access_key: "{{ aws_id }}"
-	  aws_secret_key: "{{ aws_key }}"
-	  region: "{{ aws_region }}"
-	  image: ami-775e4f16
-	  instance_type: t2.micro
-	  count: 2
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      image: ami-775e4f16
+      instance_type: t2.micro
+      count: 2
  

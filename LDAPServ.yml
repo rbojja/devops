@@ -48,13 +48,12 @@
   - name: Ensure openldap is started
     service: name=slapd state=started enabled=yes
 
-
   - name: adding group techops_dba at the end of the sudoers file
     lineinfile: dest=/etc/sudoers regexp='' insertafter=EOF line='%techops_dba        ALL=(ALL)       NOPASSWD: ALL'
-	  
+
   - name: adding group techops_dba at the end of the sudoers file
     lineinfile: dest=/etc/security/access.conf  regexp='' insertafter=EOF line='+ : @techops_dba : ALL'  
-	  
+
   - name: Restarting ldap 
     service: name=slapd state=restarted enabled=yes
     changed_when: False
