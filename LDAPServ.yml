@@ -1,0 +1,61 @@
+--- # Ansible Playbook to Configure LDAP Server and adding group techops_dba
+- hosts: aws
+  connection: ssh
+  remote_user: ec2-user
+  become: yes
+  gather_facts: yes
+  vars_files:
+  - files/awscred.yml
+  tasks:
+  - name: Ensure openldap is installed.
+    yum: name={{ item }} state=installed
+    when: ansible_os_family == "RedHat"
+    with_items:
+      - openldap 
+      - openldap-servers 
+      - openldap-clients
+      - openssh-ldap
+      - pam_ldap
+
+  - name: Ensure ldap conf directory is present
+    file: path={{ ldap_dir }} state=directory
+
+  - name: Ensure ldap conf directory is initialized
+    file: path={{ openldap_conf_dir }}/slapd.d/ state=absent
+  - name: Ensure sample conf file is copied
+    shell: creates={{ ldap_dir }}/DB_CONFIG cp /usr/share/openldap-servers/DB_CONFIG.example {{ ldap_dir }}/DB_CONFIG
+
+
+  - name: Ensure ldap directory permission is correct
+    file: path={{ ldap_dir }} owner=ldap group=ldap
+    when: ansible_os_family == "RedHat"
+
+  - name: Genrate ldap master password
+    shell: /usr/sbin/slappasswd -s {{ ldap_root_password }}
+    register: generated_root_password
+    ignore_errors: yes
+    changed_when: False
+
+  - name: Ensure slapd.conf is set
+    template: src=templates/slapd.conf.j2 dest={{ slapd_conf_path }}
+    changed_when: False
+
+
+  - name: Ensure openssh include statement is present
+    lineinfile: dest={{ slapd_conf_path }} regexp="^include\s{{ openldap_conf_dir }}/schema/openssh.schema" line="include {{ openldap_conf_dir }}/schema/openssh.schema"
+    changed_when: False
+
+  - name: Ensure openldap is started
+    service: name=slapd state=started enabled=yes
+
+
+  - name: adding group techops_dba at the end of the sudoers file
+    lineinfile: dest=/etc/sudoers regexp='' insertafter=EOF line='%techops_dba        ALL=(ALL)       NOPASSWD: ALL'
+	  
+  - name: adding group techops_dba at the end of the sudoers file
+    lineinfile: dest=/etc/security/access.conf  regexp='' insertafter=EOF line='+ : @techops_dba : ALL'  
+	  
+  - name: Restarting ldap 
+    service: name=slapd state=restarted enabled=yes
+    changed_when: False
+
