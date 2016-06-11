@@ -1,4 +1,4 @@
---- # EC2_KEY MODULE EXAMPLE
+--- # EC2_KEY MODULE 
 - hosts: localhost
   connection: localhost
   remote_user: test
@@ -7,10 +7,10 @@
   var_files:
   - files/awscreds.yml
   tasks:
-  - name: Create a New Key Pair - MyKeyPairTestAWS
+  - name: Create a New Key Pair - MyKeyPair
     ec2_key:
       aws_access_key: "{{ aws_id }}"
       aws_secret_key: "{{ aws_key }}
-      name: MyKeyPairTestAWS
+      name: MyKeyPair
       region: us-west-2
       state: present
