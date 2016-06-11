@@ -37,7 +37,7 @@
 
   - name: getting ntp results
     shell: ntpq -p
-    register:ntpresult
+    register: ntpresult
     
   - name: Display Results of ntp command
     debug: var=ntpresult      
