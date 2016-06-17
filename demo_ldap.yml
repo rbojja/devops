@@ -1,0 +1,47 @@
+- hosts: aws
+  connection: ssh
+  remote_user: ec2-user
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - vars/main.yml
+  tasks:
+
+  - name: Ensure openldap is installed.
+    yum: name={{ item }} state=installed
+    when: ansible_os_family == "RedHat"
+    with_items:
+      - openldap-servers
+      - openldap-clients
+      
+  - name: Ensure ldap conf directory is present
+    file: path=/etc/openldap state=directory
+
+  - name: Ensure ldap conf directory is initialized
+    file: path=/etc/openldap/slapd.d/ state=absent
+  - name: Ensure sample conf file is copied
+    shell: creates=/var/lib/ldap/DB_CONFIG cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
+
+  - name: Ensure ldap directory permission is correct
+    file: path=/var/lib/ldap owner=ldap group=ldap
+    when: ansible_os_family == "RedHat"
+
+  - name: Generate ldap master password
+    shell: /usr/sbin/slappasswd -s password
+    register: generated_root_password
+    ignore_errors: yes
+    changed_when: False
+
+  - name: Ensure slapd.conf is set
+    template: src=templates/slapd.conf.j2 dest=/etc/openldap/slapd.conf
+    changed_when: False
+
+  - name: Restarting ldap 
+    service: name=slapd state=started
+    changed_when: False
+
+  - name: adding group techops_dba at the end of the sudoers file
+    lineinfile: "dest=/etc/test/sudoers regexp='' insertafter=EOF line='+ : @techops_dba : ALL'"
+
+  - name: adding group techops_dba at the end of the sudoers file
+    lineinfile: "dest=/etc/test/access.conf regexp='' insertafter=EOF line='%techops_dba        ALL=(ALL)       NOPASSWD: ALL'"

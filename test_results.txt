@@ -1,0 +1,258 @@
+Using username "user".
+user@54.237.222.110's password:
+Last login: Thu Jun 16 23:23:45 2016 from c-50-148-172-115.hsd1.ca.comcast.net
+[user@nv-ramakrishna611-gmail-com2 ~]$ su test
+Password:
+^C
+[user@nv-ramakrishna611-gmail-com2 ~]$ su test
+Password:
+[test@nv-ramakrishna611-gmail-com2 user]$
+[test@nv-ramakrishna611-gmail-com2 user]$
+[test@nv-ramakrishna611-gmail-com2 user]$ cd ~
+[test@nv-ramakrishna611-gmail-com2 ~]$ ls
+Mykeypair.pem  playbooks  playbooks.tar
+[test@nv-ramakrishna611-gmail-com2 ~]$ cd playbooks
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ ls
+awsec2facts.yml    files            latest.yml        Mykeypair.pem  vars
+awstest.yml        latest2.yml      ldapservtest.yml  shell.yml
+ec2_provision.yml  latest_test.yml  ldap.yml          templates
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ vi ldapservtest.yml
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ vi awsec2facts.yml
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ vi ldap.yml
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ vi latest.yml
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ vi latest2.yml
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ ansible-playbook latest2.yml
+ [WARNING]: While constructing a mapping from
+/home/test/playbooks/vars/main.yml, line 3, column 1, found a duplicate dict key
+(ldap_dir).  Using last defined value only.
+
+
+PLAY [aws] *********************************************************************
+
+TASK [setup] *******************************************************************
+fatal: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh.", "unreachable": true}
+ [WARNING]: Could not create retry file 'latest2.retry'.         Unable to
+create local directories(): [Errno 2] No such file or directory: ''
+
+
+PLAY RECAP *********************************************************************
+ec2-54-187-200-237.us-west-2.compute.amazonaws.com : ok=0    changed=0    unreachable=1    failed=0
+
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ ssh-agent bash
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ cp ../*pem .
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ ssh-add Mykeypair.pem
+Identity added: Mykeypair.pem (Mykeypair.pem)
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ ansible-playbook latest2.yml
+ [WARNING]: While constructing a mapping from
+/home/test/playbooks/vars/main.yml, line 3, column 1, found a duplicate dict key
+(ldap_dir).  Using last defined value only.
+
+
+PLAY [aws] *********************************************************************
+
+TASK [setup] *******************************************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Ensure openldap is installed.] *******************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com] => (item=[u'openldap-servers', u'openldap-clients'])
+
+TASK [Ensure ldap conf directory is present] ***********************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Ensure ldap conf directory is initialized] *******************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Ensure sample conf file is copied] ***************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Ensure ldap directory permission is correct] *****************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Generate ldap master password] *******************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Ensure slapd.conf is set] ************************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Restarting ldap] *********************************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [adding group techops_dba at the end of the sudoers file] *****************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [adding group techops_dba at the end of the sudoers file] *****************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+PLAY RECAP *********************************************************************
+ec2-54-187-200-237.us-west-2.compute.amazonaws.com : ok=11   changed=0    unreachable=0    failed=0
+
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ vi latest_test.yml
+[test@nv-ramakrishna611-gmail-com2 playbooks]$ ansible-playbook latest_test.yml
+ [WARNING]: While constructing a mapping from
+/home/test/playbooks/latest_test.yml, line 2, column 3, found a duplicate dict
+key (connection).  Using last defined value only.
+
+
+PLAY [aws] *********************************************************************
+
+TASK [setup] *******************************************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Check ldap server] *******************************************************
+changed: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Check access.conf] *******************************************************
+changed: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Display Results of Ldap command] *****************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com] => {
+    "result1": {
+        "changed": true,
+        "cmd": "ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts",
+        "delta": "0:00:00.008508",
+        "end": "2016-06-17 00:16:16.310006",
+        "rc": 0,
+        "start": "2016-06-17 00:16:16.301498",
+        "stderr": "",
+        "stdout": "# extended LDIF\n#\n# LDAPv3\n# base <> with scope baseObject\n# filter: (objectclass=*)\n# requesting: namingContexts \n#\n\n#\ndn:\nnamingContexts: dc=example,dc=com\n\n# search result\nsearch: 2\nresult: 0 Success\n\n# numResponses: 2\n# numEntries: 1",
+        "stdout_lines": [
+            "# extended LDIF",
+            "#",
+            "# LDAPv3",
+            "# base <> with scope baseObject",
+            "# filter: (objectclass=*)",
+            "# requesting: namingContexts ",
+            "#",
+            "",
+            "#",
+            "dn:",
+            "namingContexts: dc=example,dc=com",
+            "",
+            "# search result",
+            "search: 2",
+            "result: 0 Success",
+            "",
+            "# numResponses: 2",
+            "# numEntries: 1"
+        ],
+        "warnings": []
+    }
+}
+
+TASK [Check access.conf] *******************************************************
+changed: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Check sudoers] ***********************************************************
+changed: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Display Results of Ldap command] *****************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com] => {
+    "result1": {
+        "changed": true,
+        "cmd": "ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts",
+        "delta": "0:00:00.008508",
+        "end": "2016-06-17 00:16:16.310006",
+        "rc": 0,
+        "start": "2016-06-17 00:16:16.301498",
+        "stderr": "",
+        "stdout": "# extended LDIF\n#\n# LDAPv3\n# base <> with scope baseObject\n# filter: (objectclass=*)\n# requesting: namingContexts \n#\n\n#\ndn:\nnamingContexts: dc=example,dc=com\n\n# search result\nsearch: 2\nresult: 0 Success\n\n# numResponses: 2\n# numEntries: 1",
+        "stdout_lines": [
+            "# extended LDIF",
+            "#",
+            "# LDAPv3",
+            "# base <> with scope baseObject",
+            "# filter: (objectclass=*)",
+            "# requesting: namingContexts ",
+            "#",
+            "",
+            "#",
+            "dn:",
+            "namingContexts: dc=example,dc=com",
+            "",
+            "# search result",
+            "search: 2",
+            "result: 0 Success",
+            "",
+            "# numResponses: 2",
+            "# numEntries: 1"
+        ],
+        "warnings": []
+    }
+}
+
+TASK [Display Results of access conf shell command] ****************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com] => {
+    "result2": {
+        "changed": true,
+        "cmd": "grep 'techops_dba' /etc/test/access.conf",
+        "delta": "0:00:00.003408",
+        "end": "2016-06-17 00:16:27.568246",
+        "rc": 0,
+        "start": "2016-06-17 00:16:27.564838",
+        "stderr": "",
+        "stdout": "%techops_dba        ALL=(ALL)       NOPASSWD: ALL",
+        "stdout_lines": [
+            "%techops_dba        ALL=(ALL)       NOPASSWD: ALL"
+        ],
+        "warnings": []
+    }
+}
+
+TASK [Display Results of sudoers conf shell command] ***************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com] => {
+    "result3": {
+        "changed": true,
+        "cmd": "grep 'techops_dba' /etc/test/sudoers",
+        "delta": "0:00:00.002945",
+        "end": "2016-06-17 00:16:33.047539",
+        "rc": 0,
+        "start": "2016-06-17 00:16:33.044594",
+        "stderr": "",
+        "stdout": "+ : @techops_dba : ALL",
+        "stdout_lines": [
+            "+ : @techops_dba : ALL"
+        ],
+        "warnings": []
+    }
+}
+
+TASK [Installing ntp] **********************************************************
+changed: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+ [WARNING]: Consider using yum module rather than running yum
+
+
+TASK [starting ntp] ************************************************************
+changed: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [getting ntp results] *****************************************************
+changed: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com]
+
+TASK [Display Results of ntp command] ******************************************
+ok: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com] => {
+    "ntpresult": {
+        "changed": true,
+        "cmd": "ntpq -p",
+        "delta": "0:00:00.573617",
+        "end": "2016-06-17 00:16:50.548999",
+        "rc": 0,
+        "start": "2016-06-17 00:16:49.975382",
+        "stderr": "",
+        "stdout": "     remote           refid      st t when poll reach   delay   offset  jitter\n==============================================================================\n+mail.coldnortha 132.246.11.231   2 u  829 1024  377   68.719    3.175   5.028\n+helium.constant 128.59.0.245     2 u  198 1024  377   72.813    0.780   6.013\n+hydrogen.consta 209.51.161.238   2 u  911 1024  377   74.334    0.602   2.909\n*chl.la          127.67.113.92    2 u  243 1024  377   22.969    1.937   2.405",
+        "stdout_lines": [
+            "     remote           refid      st t when poll reach   delay   offset  jitter",
+            "==============================================================================",
+            "+mail.coldnortha 132.246.11.231   2 u  829 1024  377   68.719    3.175   5.028",
+            "+helium.constant 128.59.0.245     2 u  198 1024  377   72.813    0.780   6.013",
+            "+hydrogen.consta 209.51.161.238   2 u  911 1024  377   74.334    0.602   2.909",
+            "*chl.la          127.67.113.92    2 u  243 1024  377   22.969    1.937   2.405"
+        ],
+        "warnings": []
+    }
+}
+
+TASK [Jump box check] **********************************************************
+changed: [ec2-54-187-200-237.us-west-2.compute.amazonaws.com -> localhost]
+
+PLAY RECAP *********************************************************************
+ec2-54-187-200-237.us-west-2.compute.amazonaws.com : ok=14   changed=8    unreachable=0    failed=0
+
